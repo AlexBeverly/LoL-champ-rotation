@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/style.css">
+    <title>League Champion Rotation</title>
+</head>
+
+<body>
+    <h1>Current Free League Champions</h1>
+    <input type="password" name="apikey" id="apikey" placeholder="API key">
+    <button type="submit" id="submitkey" onclick="sendKey(document.getElementById('apikey').value)">Submit</button>
+    <p id="message"></p>
+    <p id="apitip">If you don't have an API key, you can get an API key from the Riot Games developer portal: developer.riotgames.com</p>
+
+    <ul id="freeChamps"></ul>
+    <ul id="freeChampsNewPlayers"></ul>
+
+    <script>
+        //send key to fetch data from Riot API
+        sendKey = async key => {
+            //disable inputs while fetching
+            document.getElementById('apikey').disabled = true;
+            document.getElementById('submitkey').disabled = true;
+            //put input in object
+            const apiKey = {
+                key
+            };
+            //set fetch options
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(apiKey)
+            };
+            //fetch champion rotation and parse JSON
+            const res = await fetch('/champ-rotation', options);
+            const data = await res.json();
+            console.log(data);
+            //if champion rotation was not fetched, re-enable inputs to try again
+            if (data.status !== 'success') {
+                document.getElementById('apikey').disabled = false;
+                document.getElementById('submitkey').disabled = false;
+                document.getElementById('message').innerHTML = data.error;
+            } else { //otherwise remove inputs
+                elements = [
+                    document.getElementById('apikey'),
+                    document.getElementById('submitkey'),
+                    document.getElementById('message'),
+                    document.getElementById('apitip')
+                ];
+                elements.forEach(element => element.parentNode.removeChild(element));
+
+                //list champions
+                document.getElementById('freeChamps').innerHTML = '<h1>Level 10+</h1>';
+                data.freeChampionIds.forEach(champ => {
+                    document.getElementById('freeChamps').innerHTML += `<img src = "http://${champ.icon}" alt="${champ.name}" title="${champ.name}">`;
+                });
+                document.getElementById('freeChampsNewPlayers').innerHTML = '<h1>New Players</h1>';
+                data.freeChampionIdsForNewPlayers.forEach(champ => {
+                    document.getElementById('freeChampsNewPlayers').innerHTML += `<img src = "http://${champ.icon}" alt="${champ.name}" title="${champ.name}">`;
+                });
+            }
+
+        }
+    </script>
+
+</body>
+
+</html>

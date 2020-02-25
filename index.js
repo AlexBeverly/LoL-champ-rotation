@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const logger = require('./middleware/logger');
 const fetch = require('node-fetch');
 const bodyparser = require('body-parser');
 
@@ -8,9 +7,6 @@ const app = express();
 
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
-
-//init middleware
-//app.use(logger);
 
 app.post('/champ-rotation', (req, res) => {
     let apikey = req.body['key'];
